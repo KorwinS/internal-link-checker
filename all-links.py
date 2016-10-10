@@ -1,6 +1,10 @@
-import http.client
 import urllib.request
+import socket
 from bs4 import BeautifulSoup, SoupStrainer
+
+# timeout in seconds
+timeout = 10
+socket.setdefaulttimeout(timeout)
 
 # Get the hostname
 host = input("Host name to test (like www.example.com)?: ")
@@ -19,25 +23,29 @@ for link in links:
 
 # Check for results
 errorCount=0
+
 if len(urlList)==0:
 	print("No links found on page")
 else:
 	# Loop through url and test each one
 	print("Testing all URLs")
 	for i in urlList:
-		if i.startswith('http'):
+		if i.startswith('http'): 
+			# External Links
 			fullURL=urllib.request.urlopen(i)
 			print(fullURL.getcode()," : ",i)
 			if fullURL.getcode() > 399:
 				errorCount=errorCount+1
-		else:
-			conn = http.client.HTTPConnection(host, timeout=10)
-			#headers = {'User-Agent': 'Mozilla/5.0'}
-			conn.request("GET", i) # Add str(headers) into the request 
-			res = conn.getresponse()
-			print(res.status," : ",i)
-			if res.status > 399:
-				errorCount=errorCount+1 
-			
+		else: 
+			# Internal Links
+			try:
+				fullURL=urllib.request.urlopen(url+i)
+			except urllib.error.URLError as e:
+				print(e.code," : ",i)
+				errorCount=errorCount+1
+			print(fullURL.getcode()," : ",i)
+			if fullURL.getcode() > 399:
+				errorCount=errorCount+1
+
 # Report Error responses
 print("Number of Errors: ",errorCount)
