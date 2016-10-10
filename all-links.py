@@ -25,13 +25,19 @@ else:
 	# Loop through url and test each one
 	print("Testing all URLs")
 	for i in urlList:
-		conn = http.client.HTTPConnection(host)
-		#headers = {'User-Agent': 'Mozilla/5.0'}
-		conn.request("GET", i) # Add str(headers) into the request to add the useragent
-		res = conn.getresponse()
-		print(res.status,res.reason," : ",i)
-		if res.status > 399:
-			errorCount=errorCount+1
-
+		if i.startswith('http'):
+			fullURL=urllib.request.urlopen(i)
+			print(fullURL.getcode()," : ",i)
+			if fullURL.getcode() > 399:
+				errorCount=errorCount+1
+		else:
+			conn = http.client.HTTPConnection(host, timeout=10)
+			#headers = {'User-Agent': 'Mozilla/5.0'}
+			conn.request("GET", i) # Add str(headers) into the request 
+			res = conn.getresponse()
+			print(res.status," : ",i)
+			if res.status > 399:
+				errorCount=errorCount+1 
+			
 # Report Error responses
 print("Number of Errors: ",errorCount)

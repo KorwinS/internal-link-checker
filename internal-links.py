@@ -19,6 +19,7 @@ for link in links:
         urlList.append(link['href'])
 
 # Check for results
+errorCount=0
 if len(urlList)==0:
 	print("No internal links found on page")
 else:
@@ -30,3 +31,8 @@ else:
 		conn.request("GET", i)
 		res = conn.getresponse()
 		print(res.status,res.reason," : ",i)
+		if res.status > 399:
+			errorCount=errorCount+1
+
+# Report Error responses
+print("Number of Errors: ",errorCount)
