@@ -6,24 +6,33 @@ from bs4 import BeautifulSoup, SoupStrainer
 timeout = 10
 socket.setdefaulttimeout(timeout)
 
+errorCount=0
+
 # Get the hostname
 host = input("Host name to test (like www.example.com)?: ")
 url = "http://"+host
+
+# Open the page
 page = urllib.request.urlopen(url)
+
+# Filter for <a> tags
 navlinks = SoupStrainer('a', {'class': ''})
 soup = BeautifulSoup(page, "html.parser", parse_only=navlinks)
 links = soup.findAll('a')
 
-# Create an Empty List for the list of URLs
+# Loop through the links found, check for dupes, add to list
 urlList = []
-
-# Loop through the links found
 for link in links:
-	urlList.append(link['href'])
+	if link['href'] not in urlList:
+		urlList.append(link['href'])
 
-# Check for results
-errorCount=0
+# Function to Handle Error Results
+def printErrorCode(x):
+	print(e.code," : ",x)
+	global errorCount
+	errorCount=errorCount+1
 
+# Check for links in list
 if len(urlList)==0:
 	print("No links found on page")
 else:
@@ -31,22 +40,18 @@ else:
 	print("Testing all URLs")
 	for i in urlList:
 		if i.startswith('http'): 
-			# External Links
+			# External Links 
 			try:
 				fullURL=urllib.request.urlopen(i)
 			except urllib.error.URLError as e:
-				print(e.code," : ",i)
-				errorCount=errorCount+1
+				printErrorCode(i)
 		else: 
 			# Internal Links
 			try:
 				fullURL=urllib.request.urlopen(url+i)
 			except urllib.error.URLError as e:
-				print(e.code," : ",i)
-				errorCount=errorCount+1
+				printErrorCode(i)
 		print(fullURL.getcode()," : ",i)
-		if fullURL.getcode() > 399:
-			errorCount=errorCount+1
 
 # Report Error responses
 print("Number of Errors: ",errorCount)
