@@ -32,9 +32,10 @@ else:
 	for i in urlList:
 		if i.startswith('http'): 
 			# External Links
-			fullURL=urllib.request.urlopen(i)
-			print(fullURL.getcode()," : ",i)
-			if fullURL.getcode() > 399:
+			try:
+				fullURL=urllib.request.urlopen(i)
+			except urllib.error.URLError as e:
+				print(e.code," : ",i)
 				errorCount=errorCount+1
 		else: 
 			# Internal Links
@@ -43,9 +44,9 @@ else:
 			except urllib.error.URLError as e:
 				print(e.code," : ",i)
 				errorCount=errorCount+1
-			print(fullURL.getcode()," : ",i)
-			if fullURL.getcode() > 399:
-				errorCount=errorCount+1
+		print(fullURL.getcode()," : ",i)
+		if fullURL.getcode() > 399:
+			errorCount=errorCount+1
 
 # Report Error responses
 print("Number of Errors: ",errorCount)
